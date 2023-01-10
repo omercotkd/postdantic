@@ -1,11 +1,32 @@
 from pydantic import BaseModel as PydanticBaseModel, Field, ConstrainedStr
 from pydantic.fields import ModelField
+from enum import Enum
 
 class ModelConfig:
     # orm_mode = True
     # allow_population_by_field_name = True
     arbitrary_types_allowed = True
     table_name: str = None
+
+
+class PostgressFieldsTypes(Enum):
+    TEXT = "TEXT"
+    VARCHAR = "VARCHAR"
+    CHAR = "CHAR"
+    INTEGER = "INTEGER"
+    BIGINT = "BIGINT"
+    NUMERIC = "NUMERIC"
+    REAL = "REAL"
+    DOUBLE_PRECISION = "DOUBLE PRECISION"
+    SERIAL = "SERIAL"
+    BIGSERIAL = "BIGSERIAL"
+    MONEY = "MONEY"
+    TIMESTAMP = "TIMESTAMP"
+    TIMESTAMP_WITH_TIMEZONE = "TIMESTAMP WITH TIMEZONE"
+    DATE = "DATE"
+    BOOLEAN = "BOOLEAN"
+    UUID = "UUID"
+
 
 
 class cached_classproperty:
@@ -55,19 +76,22 @@ class DBModel(PydanticBaseModel):
             create_sql += f", {cls.format_field_for_sql_creation_table(field_name, field)}"
 
         return create_sql
-        
-    @classmethod
-    def format_field_for_sql_creation_table(cls, name: str, field: ModelField) -> str:
+    
+    @staticmethod
+    def format_field_for_sql_creation_table(name: str, field: ModelField) -> str:
 
         field_type = field.type_
 
-        field_name = field.alias or name
+        field_name = field.alias if field.has_alias else name
   
         # unlimited string length
         if field_type == str:
             field_type = "TEXT"
         elif issubclass(field_type, ConstrainedStr):
-            field_type = f"VARCHAR({field.field_info.max_length})"
+            if field.field_info.max_length == 1:
+                field_type = "CHAR"
+            else:
+                field_type = f"VARCHAR({field.field_info.max_length})"
         
         if field.required:
             field_type += " NOT NULL"
