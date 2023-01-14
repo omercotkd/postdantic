@@ -125,7 +125,7 @@ class ModelHelper:
             field_definition.append(f"DEFAULT {field.default}")
 
         if field.field_info.extra.get("primary_key"):
-            field_definition.append("PRIMARY KEY")
+            field_definition.append("PRIMARY KEY GENERATED ALWAYS AS IDENTITY")
         
         if field.field_info.extra.get("unique"):
             field_definition.append("UNIQUE")
