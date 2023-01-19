@@ -115,6 +115,8 @@ class ModelHelper:
                 raise ValueError(f"Type {field_type.__args__[0]} not supported")
         elif isinstance(field_type, GenericAlias) and field_type.__origin__ == dict:
             field_definition.append("JSONB")
+        elif issubclass(field_type, PydanticBaseModel):
+            field_definition.append("JSONB")
         else:
             raise ValueError(f"Type {field_type} not supported")
 
