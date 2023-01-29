@@ -8,6 +8,7 @@ from pydantic import (
 from typing import Type
 from functools import cached_property
 from pydantic.fields import ModelField
+from pydantic.typing import is_literal_type
 from types import GenericAlias
 from datetime import datetime
 
@@ -74,9 +75,12 @@ class ModelHelper:
 
         field_definition: list[str] = [field_name]
 
+
         # add to the field definition the type of the field
         if field_type == str:
             field_definition.append("TEXT")
+        elif is_literal_type(field_type):
+            raise NotImplementedError("Literal types are not supported yet")
         elif issubclass(field_type, ConstrainedStr):
             if field.field_info.max_length == 1:
                 field_definition.append("CHAR")

@@ -1,6 +1,6 @@
 from src.postdantic import ModelHelper
 from pydantic import BaseModel, Field
-
+from typing import Literal
 
 class MiniTests(BaseModel):
     name: str = Field(alias="full_name", max_length=100, unique=True)
